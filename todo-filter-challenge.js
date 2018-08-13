@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-const toDoFilterSheet = [{
+const todos = [{
     text: 'Order cat food',
     completed: false
 }, {
@@ -15,26 +15,36 @@ const toDoFilterSheet = [{
     text: 'Exercise',
     completed: true
 }];
-
+const numOf2dos = document.createElement('div');
+numOf2dos.id = 'setHere';
+document.querySelector('body').appendChild(numOf2dos);
+const notComplete = document.createElement("h2");
+notComplete.id = 'notComp';
+//notComplete.textContent = (`you have ${incompleteToDOs.length} todos left`);
+// document.querySelector('body').appendChild(notComplete);
+document.getElementById('setHere').appendChild(notComplete);
 //1. setup a div contain for todos ->> completed
 //2. setup filters (searchText) and wire up a new filter input to change it 
 //3. Create a reanderToDos function to rerender the latest filtered data 
 
 const newInput = document.createElement('input');
-newInput.id= 'filter-to-dos-here';
+newInput.id = 'search-text';
 newInput.placeholder = 'filter to dos here';
 newInput.type = 'text';
+newInput.name = 'switchTrue';
 document.querySelector('body').appendChild(newInput);
 const newDiv = document.createElement('div');
-newDiv.id='filter-todo-sheet';
+newDiv.id = 'filter-todo-sheet';
 document.querySelector('body').appendChild(newDiv);
 /////////////new form-> input
 const submitForm = document.createElement('form');
-submitForm.id= 'submit-form';
+submitForm.id = 'submit-form';
 const submitInput = document.createElement('input');
 submitInput.type = 'text';
 submitInput.placeholder = 'add-to-list';
 submitInput.name = 'addTo';
+submitInput.id = 'addTo';
+// submitInput.minLength = 1;
 document.querySelector('body').appendChild(submitForm).appendChild(submitInput);
 /////////////////////////newbutton below
 const submitButton = document.createElement('button');
@@ -42,64 +52,80 @@ submitButton.innerHTML = 'SUBMIT NEW TODO';
 ////////////////////////add submit button to html inside submit form below 
 document.getElementById('submit-form').appendChild(submitButton);
 ////////////////////////inclomplete todos here
-const incompleteToDOs = toDoFilterSheet.filter(element => {
-    // console.log(!element.completed);
-    return !element.completed;
-});
-const notComplete = document.createElement("h2");
-notComplete.id = 'notComp';
-notComplete.textContent=(`you have ${incompleteToDOs.length} todos left`);
-document.querySelector('body').appendChild(notComplete);
 //////////////////////////deletes todos that you arent searching 
-const deleteOtherText = {// this is a attribute given to replace with an empty spot
-    searchText: ''
+const filters = { // this is a attribute given to replace with an empty spot
+    searchText: '',
+    hideCompleted: false
 };
+const rendNotes = function (todos, filters) {
+    //console.log('rendNotes');
 
-const rendNotes = function (notes, deleteOtherText) {
-    console.log('rendNotes');
-    
-    // create fucntion that filters through each note and returns a specific note that contains a certain value or text
-    // const filterThroughNotes = notes.filter(eachNote=>{
-    const filterThroughNotes = notes.filter(function (eachNote){
-        return eachNote.text.toLowerCase().includes(deleteOtherText.searchText.toLowerCase());
+    const filterThroughToDo = todos.filter(function (todo) {
+        const searchTextMatch =todo.text.toLowerCase().includes(filters.searchText.toLowerCase());
+        const hideCompletedMatch =!(filters.hideCompleted && todo.completed);
+        return searchTextMatch && hideCompletedMatch;// || incompleteToDosMatch; //&& incompleteToDosMatch;
+        //return eachNote.text.toLowerCase().includes(filters.searchText.toLowerCase());
     });
-    document.getElementById('filter-todo-sheet').innerHTML = '<p>';
+    //edited date
+    // filterThroughToDo = filterThroughToDo.filter(todo => {//nandoperator
+    //     return !(filters.hideCompleted && todo.completed);
+    // });
+    const incompleteToDOs = todos.filter(todo => { 
+        return !todo.completed;
+    });
+    document.getElementById('filter-todo-sheet').innerHTML = '';
+
+     notComplete.textContent = (`you have ${incompleteToDOs.length} todos left`);
     //call filter through notes
-    filterThroughNotes.forEach(element=>{
+    filterThroughToDo.forEach(element => {
         const nP = document.createElement('p');
+        nP.id = 'new-todo';
         nP.textContent = element.text;
         document.getElementById('filter-todo-sheet').appendChild(nP);
     });
     // now that we have found what we want. now print out to the html in a new paragraph
 };
-rendNotes(toDoFilterSheet,deleteOtherText);
-document.getElementById('filter-to-dos-here').addEventListener('input',function(e){
+rendNotes(todos, filters);
+document.getElementById('search-text').addEventListener('input', function (e) {
     // @ts-ignore
-    deleteOtherText.searchText = e.target.value;
-    rendNotes(toDoFilterSheet,deleteOtherText);
-    // deleteOtherText.searchText= e.target;
+    filters.searchText = e.target.value;
+    rendNotes(todos, filters);
 });
 
 document.getElementById('submit-form').addEventListener('submit', function (e) {
-    const new2do = document.createElement('p');
-    new2do.id = 'new-todo'; // gives id to new p
+    //console.log('before submission ');
+    // @ts-ignore
     e.preventDefault();
-    // i want to push to 
-    toDoFilterSheet.push({
+    // @ts-ignore
+    if (e.target.elements.addTo.value !== '') {
+        todos.push({
+            // @ts-ignore
+            text: e.target.elements.addTo.value,
+            completed: false
+        });
+        rendNotes(todos, filters); // why this 
         // @ts-ignore
-        text: e.target.elements.addTo.value,
-        completed: false
-    });
-    toDoFilterSheet.forEach(element => {
-        console.log(`${element.text} + ${element.completed}`);
-
-    });
-    // @ts-ignore
-    new2do.textContent = e.target.elements.addTo.value;
-    // document.querySelector('div').appendChild(newpara);
-
-    document.getElementById('filter-todo-sheet').appendChild(new2do);
-    // @ts-ignore
-    // document.querySelector('body').appendChild(newpara);
+        e.target.elements.addTo.value = '';
+    } else {
+        alert('please add more than one character');
+    }
 });
-//////////////created div above 
+//////////////created div above
+//delete todo 
+document.getElementById('hideCompleted').addEventListener('change', e => {
+    // @ts-ignore
+    //console.log(e.target.checked);
+    //if checked defult false is == todos.compled
+    //
+    // @ts-ignore
+    filters.hideCompleted = e.target.checked;
+    rendNotes(todos, filters);
+});
+
+//create a chekc box and setup up  called hide completed
+//done
+
+// create hidecompelted filter (default false)
+
+//update hindeOCMpelted and rerednerlist on checkbox change
+//setup rendertodos to remove completed
