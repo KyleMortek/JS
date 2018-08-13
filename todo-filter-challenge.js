@@ -1,5 +1,10 @@
 /*jshint esversion: 6 */
-const todos = [{
+
+//delete the dummy data 
+//read ad parse the data when the app starts up 
+// stringify and write the data when new data is added
+
+let todos = [{// need to change this to let so data can be changed 
     text: 'Order cat food',
     completed: false
 }, {
@@ -15,6 +20,46 @@ const todos = [{
     text: 'Exercise',
     completed: true
 }];
+// below grabs the data to keep it avaible in the html file. 
+const todoJSON = localStorage.getItem('todos');
+if (todoJSON !== null) {// only runs if there is data in storage. 
+    todos = JSON.parse(todoJSON);
+}
+console.log(localStorage.getItem('todos'));
+
+// localStorage.clear();
+// localStorage.setItem
+// const todoJSON = JSON.stringify(todos);
+// // console.log(todoJSON);
+// localStorage.setItem('todos', todoJSON);
+// // localStorage.getItem('todos');
+// localStorage.removeItem('text');
+// console.log(localStorage.setItem('location', 'NY'))
+// console.log(localStorage.getItem('location'));
+// localStorage.removeItem('location');
+// localStorage.clear();//clears all local storage
+// const user = {
+//     name: 'me ',
+//     age: 22
+// };
+// const userJSON = JSON.stringify(user);
+// console.log(userJSON);
+// const userJSON = localStorage.getItem('user');
+// localStorage.setItem('user', userJSON);
+
+// localStorage.getItem('user');
+// const user = JSON.parse(userJSON);
+// console.log(`${user.name} is ${user.age}`);
+
+// let note = [];
+// const notesJSON = localStorage.getItem('notes');
+// if (notesJSON !== null) {
+//     note = JSON.parse(notesJSON);
+// }
+// save data using setitem
+
+
+/////////////////////////////
 const numOf2dos = document.createElement('div');
 numOf2dos.id = 'setHere';
 document.querySelector('body').appendChild(numOf2dos);
@@ -58,24 +103,24 @@ const filters = { // this is a attribute given to replace with an empty spot
     hideCompleted: false
 };
 const rendNotes = function (todos, filters) {
-    //console.log('rendNotes');
+    localStorage.getItem('todos');
 
     const filterThroughToDo = todos.filter(function (todo) {
-        const searchTextMatch =todo.text.toLowerCase().includes(filters.searchText.toLowerCase());
-        const hideCompletedMatch =!(filters.hideCompleted && todo.completed);
-        return searchTextMatch && hideCompletedMatch;// || incompleteToDosMatch; //&& incompleteToDosMatch;
+        const searchTextMatch = todo.text.toLowerCase().includes(filters.searchText.toLowerCase());
+        const hideCompletedMatch = !(filters.hideCompleted && todo.completed);
+        return searchTextMatch && hideCompletedMatch; // || incompleteToDosMatch; //&& incompleteToDosMatch;
         //return eachNote.text.toLowerCase().includes(filters.searchText.toLowerCase());
     });
     //edited date
     // filterThroughToDo = filterThroughToDo.filter(todo => {//nandoperator
     //     return !(filters.hideCompleted && todo.completed);
     // });
-    const incompleteToDOs = todos.filter(todo => { 
+    const incompleteToDOs = todos.filter(todo => {
         return !todo.completed;
     });
     document.getElementById('filter-todo-sheet').innerHTML = '';
 
-     notComplete.textContent = (`you have ${incompleteToDOs.length} todos left`);
+    notComplete.textContent = (`you have ${incompleteToDOs.length} todos left`);
     //call filter through notes
     filterThroughToDo.forEach(element => {
         const nP = document.createElement('p');
@@ -103,6 +148,15 @@ document.getElementById('submit-form').addEventListener('submit', function (e) {
             text: e.target.elements.addTo.value,
             completed: false
         });
+        //////////////////////////////////////////data storage part 
+        // const todoJSON = JSON.stringify(todos);
+        //console.log('rendNotes');
+        //  console.log(todoJSON);
+        // localStorage.setItem('todos', todoJSON);
+        ///////////////////simplied version of above 
+        localStorage.setItem('todos', JSON.stringify(todos));
+        //  localStorage.getItem('todos');
+        ///////////////////////////////////////// data stoarge
         rendNotes(todos, filters); // why this 
         // @ts-ignore
         e.target.elements.addTo.value = '';
