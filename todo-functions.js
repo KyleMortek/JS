@@ -107,3 +107,4 @@ const generateSummary = incompleteToDOs => {
     document.getElementById('filter-todo-sheet').innerHTML = '';
     notComplete.textContent = (`you have ${incompleteToDOs.length} todos left`);
 };
+///testing
